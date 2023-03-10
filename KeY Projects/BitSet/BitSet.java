@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 */
 
-public class BitSet implements Cloneable /*, java.io.Serializable*/ {
+public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /* ****************************************** */
     /* Internally overriden external dependencies */
     /* (code largely copied from OpenJDK)         */
@@ -29,6 +29,7 @@ public class BitSet implements Cloneable /*, java.io.Serializable*/ {
     }
 
     private final static class System {
+        // [Own implementation used (OpenJDK uses "native" implementation)]
         public static void arraycopy(long[] src,  int  srcPos,
                                      long[] dest, int destPos,
                                      int length) {
@@ -39,7 +40,7 @@ public class BitSet implements Cloneable /*, java.io.Serializable*/ {
     }
 
     private final static class Arrays {
-        // Incomplete specification. Sufficient for BitSet.
+        // [Incomplete specification. Sufficient for BitSet]
         public static long[] copyOf(long[] original, int newLength) {
             long[] copy = new long[newLength];
             System.arraycopy(original, 0, copy, 0,
