@@ -2,6 +2,7 @@
 package java.util;
 */
 
+/*
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -9,8 +10,66 @@ import java.nio.LongBuffer;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
+*/
 
-public class BitSet implements Cloneable, java.io.Serializable {
+public class BitSet implements Cloneable /*, java.io.Serializable*/ {
+    /* ****************************************** */
+    /* Internally overriden external dependencies */
+    /* (code largely copied from OpenJDK)         */
+    /* ****************************************** */
+
+    private final static class Math {
+        public static int max(int a, int b) {
+            return (a >= b) ? a : b;
+        }
+
+        public static int min(int a, int b) {
+            return (a <= b) ? a : b;
+        }
+    }
+
+    private final static class System {
+        public static void arraycopy(long[] src,  int  srcPos,
+                                     long[] dest, int destPos,
+                                     int length) {
+            for (int i = 0; i < length; i++) {
+                dest[i] = src[i];
+            }
+        }
+    }
+
+    private final static class Arrays {
+        // Incomplete specification. Sufficient for BitSet.
+        public static long[] copyOf(long[] original, int newLength) {
+            long[] copy = new long[newLength];
+            System.arraycopy(original, 0, copy, 0,
+                             Math.min(original.length, newLength));
+            return copy;
+        }
+    }
+
+    private final static class Long {
+        public static int numberOfLeadingZeros(long i) {
+            int x = (int)(i >>> 32);
+            return x == 0 ? 32 + Integer.numberOfLeadingZeros((int)i)
+                    : Integer.numberOfLeadingZeros(x);
+        }
+        public static int numberOfTrailingZeros(long i) {
+            int x = (int)i;
+            return x == 0 ? 32 + Integer.numberOfTrailingZeros((int)(i >>> 32))
+                    : Integer.numberOfTrailingZeros(x);
+        }
+        public static int bitCount(long i) {
+            i = i - ((i >>> 1) & 0x5555555555555555L);
+            i = (i & 0x3333333333333333L) + ((i >>> 2) & 0x3333333333333333L);
+            i = (i + (i >>> 4)) & 0x0f0f0f0f0f0f0f0fL;
+            i = i + (i >>> 8);
+            i = i + (i >>> 16);
+            i = i + (i >>> 32);
+            return (int)i & 0x7f;
+        }
+    }
+
     /* **************************** */
     /* Start of "Must-have" section */
     /* **************************** */
@@ -25,6 +84,8 @@ public class BitSet implements Cloneable, java.io.Serializable {
 
     private transient int wordsInUse = 0;
 
+    // [Never read, except in commented out methods `clone`, `readObject`, and
+    // `writeObject`]
     private transient boolean sizeIsSticky = false;
 
     private static int wordIndex(int bitIndex) {
@@ -228,10 +289,17 @@ public class BitSet implements Cloneable, java.io.Serializable {
         return new BitSet(Arrays.copyOf(longs, n));
     }
 
+    // [Providing an implementation for ByteBuffer and transitive dependencies
+    // is too complex]
+    /*
     public static BitSet valueOf(byte[] bytes) {
         return BitSet.valueOf(ByteBuffer.wrap(bytes));
     }
+    */
 
+    // [Providing an implementation for ByteBuffer and transitive dependencies
+    // is too complex]
+    /*
     public byte[] toByteArray() {
         int n = wordsInUse;
         if (n == 0)
@@ -247,6 +315,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
             bb.put((byte) (x & 0xff));
         return bytes;
     }
+    */
 
     public long[] toLongArray() {
         return Arrays.copyOf(words, wordsInUse);
@@ -573,6 +642,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
         return true;
     }
 
+    // [Never used, except in commented out methods `clone` and `writeObject`]
     private void trimToSize() {
         if (wordsInUse != words.length) {
             words = Arrays.copyOf(words, wordsInUse);
@@ -580,6 +650,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
         }
     }
 
+    // [Providing an implementation for StringBuilder and transitive
+    // dependencies may be too complex]
+    /*
     public String toString() {
         checkInvariants();
 
@@ -607,7 +680,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
         b.append('}');
         return b.toString();
     }
+    */
 
+    // [Never used, except in commented out method `stream`]
     private int nextSetBit(int fromIndex, int toWordIndex) {
         int u = wordIndex(fromIndex);
         // Check if out of bounds
@@ -630,14 +705,19 @@ public class BitSet implements Cloneable, java.io.Serializable {
     /* Start of "Won't-have" section */
     /* ***************************** */
 
+    /*
     @java.io.Serial
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("bits", long[].class),
     };
+    */
 
+    /*
     @java.io.Serial
     private static final long serialVersionUID = 7997698588986878753L;
+    */
 
+    /*
     public static BitSet valueOf(LongBuffer lb) {
         lb = lb.slice();
         int n;
@@ -647,7 +727,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
         lb.get(words);
         return new BitSet(words);
     }
+    */
 
+    /*
     public static BitSet valueOf(ByteBuffer bb) {
         bb = bb.slice().order(ByteOrder.LITTLE_ENDIAN);
         int n;
@@ -662,7 +744,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
             words[i] |= (bb.get() & 0xffL) << (8 * j);
         return new BitSet(words);
     }
+    */
 
+    /*
     public Object clone() {
         if (! sizeIsSticky)
             trimToSize();
@@ -676,7 +760,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
             throw new InternalError(e);
         }
     }
+    */
 
+    /*
     @java.io.Serial
     private void writeObject(ObjectOutputStream s)
         throws IOException {
@@ -690,7 +776,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
         fields.put("bits", words);
         s.writeFields();
     }
+    */
 
+    /*
     @java.io.Serial
     private void readObject(ObjectInputStream s)
         throws IOException, ClassNotFoundException {
@@ -706,7 +794,9 @@ public class BitSet implements Cloneable, java.io.Serializable {
         sizeIsSticky = (words.length > 0 && words[words.length-1] == 0L); // heuristic
         checkInvariants();
     }
+    */
 
+    /*
     public IntStream stream() {
         class BitSetSpliterator implements Spliterator.OfInt {
             private int index; // current bit index for a set bit
@@ -851,6 +941,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
         }
         return StreamSupport.intStream(new BitSetSpliterator(0, -1, 0, true), false);
     }
+    */
 
 }
  
