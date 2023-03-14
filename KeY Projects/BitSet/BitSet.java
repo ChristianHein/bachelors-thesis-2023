@@ -1,3 +1,13 @@
+// Using KeY 2.11.0 (internal: 208396f69e) for verification.
+//
+// Using proof search strategy preset "Java verif. std.".
+//
+// Taclet settings used (unless stated otherwise):
+// - assertions:on
+// - intRules:javaSemantics
+// - runtimeExceptions:allow
+// Other taclet settings are kept on default.
+
 /*
 package java.util;
 */
@@ -40,6 +50,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private final static class System {
         // [Own implementation used (OpenJDK uses "native" implementation)]
+        // [Incomplete specification. Sufficient for BitSet]
         /*@ public normal_behavior
           @  requires src != null;
           @  requires dest != null;
@@ -70,6 +81,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private final static class Arrays {
         // [Incomplete specification. Sufficient for BitSet]
+        // [Note: Use `Query treatment: On/Restricted`.]
         /*@ public normal_behavior
           @  requires original != null;
           @  requires 0 <= newLength;
