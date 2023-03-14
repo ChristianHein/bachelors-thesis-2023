@@ -19,10 +19,20 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /* ****************************************** */
 
     private final static class Math {
+        /*@ public normal_behavior
+          @  ensures \result == a || \result == b;
+          @  ensures \result >= a && \result >= b;
+          @  assignable \strictly_nothing;
+          @*/
         public static int max(int a, int b) {
             return (a >= b) ? a : b;
         }
 
+        /*@ public normal_behavior
+          @  ensures \result == a || \result == b;
+          @  ensures \result <= a && \result <= b;
+          @  assignable \strictly_nothing;
+          @*/
         public static int min(int a, int b) {
             return (a <= b) ? a : b;
         }
@@ -30,9 +40,28 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private final static class System {
         // [Own implementation used (OpenJDK uses "native" implementation)]
+        /*@ public normal_behavior
+          @  requires src != null;
+          @  requires dest != null;
+          @  requires srcPos == 0;
+          @  requires destPos == 0;
+          @  requires 0 <= length && length <= dest.length
+          @                       && length <= src.length;
+          @  ensures (\forall int i; 0 <= i && i < length;
+          @               dest[i] == src[i]);
+          @  assignable dest[0 .. length - 1];
+          @*/
         public static void arraycopy(long[] src,  int  srcPos,
                                      long[] dest, int destPos,
                                      int length) {
+            /*@ maintaining 0 <= i && i <= length;
+              @ maintaining (\forall int j; 0 <= j && j < i;
+              @                  dest[j] == src[j]);
+              @ maintaining (\forall int j; i <= j && j < length;
+              @                  \old(dest[j]) == dest[j]);
+              @ decreasing length - i;
+              @ assignable dest[0 .. length - 1];
+              @*/
             for (int i = 0; i < length; i++) {
                 dest[i] = src[i];
             }
@@ -41,7 +70,28 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private final static class Arrays {
         // [Incomplete specification. Sufficient for BitSet]
-        public static long[] copyOf(long[] original, int newLength) {
+        /*@ public normal_behavior
+          @  requires original != null;
+          @  requires 0 <= newLength;
+          @  ensures \result.length == newLength;
+          @  ensures (\forall int i;
+          @               0 <= i && i < Math.min(original.length, newLength);
+          @               \result[i] == original[i]);
+          @  ensures (\forall int i;
+          @               Math.min(original.length, newLength) <= i && i < \result.length;
+          @               \result[i] == 0);
+          @  assignable \nothing;
+          @
+          @ also
+          @
+          @ public exceptional_behavior
+          @  requires original == null || newLength < 0;
+          @  signals (NegativeArraySizeException) newLength < 0;
+          @  signals (NullPointerException) original == null && 0 <= newLength;
+          @  signals_only NegativeArraySizeException, NullPointerException;
+          @  assignable \nothing;
+          @*/
+        public static long[] copyOf(/*@ nullable @*/ long[] original, int newLength) {
             long[] copy = new long[newLength];
             System.arraycopy(original, 0, copy, 0,
                              Math.min(original.length, newLength));
@@ -81,6 +131,12 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private static final long WORD_MASK = 0xffffffffffffffffL;
 
+    /*@ public invariant 0 <= wordsInUse && wordsInUse <= words.length;
+      @ public invariant wordsInUse != 0 ==> words[wordsInUse - 1] != 0;
+      @ public invariant (\forall int i; wordsInUse <= i && i < words.length;
+      @                       words[i] == 0);
+      @*/
+
     private long[] words;
 
     private transient int wordsInUse = 0;
@@ -89,19 +145,66 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     // `writeObject`]
     private transient boolean sizeIsSticky = false;
 
+    /*@ public normal_behavior
+      @  requires -1 <= bitIndex; // initWords(int) may call this method with -1
+      @  ensures bitIndex == -1 ==> \result == -1;
+      @  ensures bitIndex != -1 ==> \result == bitIndex / BITS_PER_WORD;
+      @  assignable \strictly_nothing;
+      @*/
+    /*@ helper @*/
     private static int wordIndex(int bitIndex) {
         return bitIndex >> ADDRESS_BITS_PER_WORD;
     }
 
+    /*@ public normal_behavior
+      @  requires words != null;
+      @  requires wordsInUse == 0 || words[wordsInUse - 1] != 0;
+      @  requires wordsInUse >= 0 && wordsInUse <= words.length;
+      @  requires wordsInUse == words.length || words[wordsInUse] == 0;
+      @  assignable \strictly_nothing;
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @  requires words != null;
+      @  requires !(wordsInUse == 0 || words[wordsInUse - 1] != 0)
+      @        || !(wordsInUse >= 0 && wordsInUse <= words.length)
+      @        || !(wordsInUse == words.length || words[wordsInUse] == 0);
+      @  signals_only AssertionError, ArrayIndexOutOfBoundsException;
+      @  signals (ArrayIndexOutOfBoundsException)
+      @      wordsInUse < 0 || words.length < wordsInUse;
+      @  signals (AssertionError) true;
+      @  assignable \nothing;
+      @*/
+    /*@ helper @*/
     private void checkInvariants() {
         assert(wordsInUse == 0 || words[wordsInUse - 1] != 0);
         assert(wordsInUse >= 0 && wordsInUse <= words.length);
         assert(wordsInUse == words.length || words[wordsInUse] == 0);
     }
 
+    /*@ public normal_behavior
+      @  requires words != null;
+      @  requires 0 <= wordsInUse && wordsInUse <= words.length;
+      @  requires (\forall int i; wordsInUse <= i && i < words.length;
+      @                words[i] == 0);
+      @  ensures \old(wordsInUse) >= wordsInUse;
+      @  ensures 0 <= wordsInUse && wordsInUse <= words.length;
+      @  ensures wordsInUse != 0 ==> words[wordsInUse - 1] != 0;
+      @  ensures (\forall int i; wordsInUse <= i && i < words.length;
+      @               words[i] == 0);
+      @  assignable wordsInUse;
+      @*/
+    /*@ helper @*/
     private void recalculateWordsInUse() {
         // Traverse the bitset until a used word is found
         int i;
+        /*@ maintaining -1 <= i && i < wordsInUse;
+          @ maintaining (\forall int j; i < j && j <= wordsInUse - 1;
+          @                  words[j] == 0);
+          @ decreasing i + 1;
+          @ assignable \strictly_nothing;
+          @*/
         for (i = wordsInUse-1; i >= 0; i--)
             if (words[i] != 0)
                 break;
@@ -109,15 +212,52 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         wordsInUse = i+1; // The new logical size
     }
 
+    /*@ public normal_behavior
+      @  ensures words.length == wordIndex(BITS_PER_WORD - 1) + 1;
+      @  ensures (\forall int i; 0 <= i && i < words.length;
+      @               words[i] == 0);
+      @  ensures sizeIsSticky == false;
+      @  assignable words;
+      @*/
     public BitSet() {
         initWords(BITS_PER_WORD);
         sizeIsSticky = false;
     }
 
+    /*@ public normal_behavior
+      @  requires 0 <= nbits;
+      @  ensures words != null;
+      @  ensures words.length == wordIndex(nbits - 1) + 1;
+      @  ensures (\forall int i; 0 <= i && i < words.length;
+      @               words[i] == 0);
+      @  assignable words;
+      @*/
+    /*@ helper @*/
     private void initWords(int nbits) {
         words = new long[wordIndex(nbits-1) + 1];
     }
 
+    /*@ public normal_behavior
+      @  requires words != null;
+      @  requires words.length >= wordsRequired;
+      @  assignable \strictly_nothing;
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @  requires words != null;
+      @  requires words.length < wordsRequired;
+      @  ensures words != null;
+      @  ensures \old(words.length) < words.length;
+      @  ensures words.length >= wordsRequired;
+      @  ensures (\forall int i; 0 <= i && i < \old(words.length);
+      @               words[i] == \old(words[i]));
+      @  ensures (\forall int i; \old(words.length) <= i && i < words.length;
+      @               words[i] == 0);
+      @  ensures sizeIsSticky == false;
+      @  assignable words, sizeIsSticky;
+      @*/
+    /*@ helper @*/
     private void ensureCapacity(int wordsRequired) {
         if (words.length < wordsRequired) {
             // Allocate larger of doubled size or required size
@@ -127,6 +267,37 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         }
     }
 
+    /*@ public normal_behavior
+      @  requires words != null;
+      @  requires wordIndex < wordsInUse;
+      @  assignable \strictly_nothing;
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @  requires words != null;
+      @  requires wordsInUse <= wordIndex && wordIndex < words.length;
+      @  ensures wordsInUse == wordIndex + 1;
+      @  assignable wordsInUse;
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @  requires words != null;
+      @  requires wordsInUse <= words.length;
+      @  requires words.length <= wordIndex && wordIndex != Integer.MAX_VALUE;
+      @  ensures words != null;
+      @  ensures \old(words.length) < words.length;
+      @  ensures words.length > wordIndex;
+      @  ensures (\forall int i; 0 <= i && i < \old(words.length);
+      @               words[i] == \old(words[i]));
+      @  ensures (\forall int i; \old(words.length) <= i && i < words.length;
+      @               words[i] == 0);
+      @  ensures sizeIsSticky == false;
+      @  ensures wordsInUse == wordIndex + 1;
+      @  assignable words, wordsInUse, sizeIsSticky;
+      @*/
+    /*@ helper @*/
     private void expandTo(int wordIndex) {
         int wordsRequired = wordIndex+1;
         if (wordsInUse < wordsRequired) {
@@ -135,6 +306,23 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         }
     }
 
+    /*@ public normal_behavior
+      @  requires 0 <= bitIndex;
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures  (bitIndex ∈ \old(indices)) ==> !(bitIndex ∈ indices);
+      @  //ensures !(bitIndex ∈ \old(indices)) ==>  (bitIndex ∈ indices);
+      @  //ensures (\forall int i; 0 <= i && i != bitIndex;
+      @  //             (i ∈ indices) == (i ∈ \old(indices)));
+      @  assignable words, wordsInUse, sizeIsSticky;
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @  requires bitIndex < 0;
+      @  signals (IndexOutOfBoundsException) true;
+      @  signals_only IndexOutOfBoundsException;
+      @  assignable \nothing;
+      @*/
     public void flip(int bitIndex) {
         if (bitIndex < 0)
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
@@ -148,6 +336,22 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         checkInvariants();
     }
 
+    /*@ public normal_behavior
+      @  requires 0 <= bitIndex;
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures bitIndex ∈ indices;
+      @  //ensures (\forall int i; 0 <= i && i != bitIndex;
+      @  //             (i ∈ indices) == (i ∈ \old(indices)));
+      @  assignable words, wordsInUse, sizeIsSticky;
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @  requires bitIndex < 0;
+      @  signals (IndexOutOfBoundsException) true;
+      @  signals_only IndexOutOfBoundsException;
+      @  assignable \nothing;
+      @*/
     public void set(int bitIndex) {
         if (bitIndex < 0)
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
@@ -160,6 +364,22 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         checkInvariants();
     }
 
+    /*@ public normal_behavior
+      @  requires 0 <= bitIndex;
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures !(bitIndex ∈ indices);
+      @  //ensures (\forall int i; 0 <= i && i != bitIndex;
+      @  //             (i ∈ indices) == (i ∈ \old(indices)));
+      @  assignable words, wordsInUse;
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @  requires bitIndex < 0;
+      @  signals (IndexOutOfBoundsException) true;
+      @  signals_only IndexOutOfBoundsException;
+      @  assignable \nothing;
+      @*/
     public void clear(int bitIndex) {
         if (bitIndex < 0)
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
@@ -174,6 +394,20 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         checkInvariants();
     }
 
+    /*@ public normal_behavior
+      @  requires 0 <= bitIndex;
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures \result == (bitIndex ∈ indices);
+      @  assignable \strictly_nothing;
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @  requires bitIndex < 0;
+      @  signals (IndexOutOfBoundsException) true;
+      @  signals_only IndexOutOfBoundsException;
+      @  assignable \nothing;
+      @*/
     public boolean get(int bitIndex) {
         if (bitIndex < 0)
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
@@ -185,6 +419,11 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
             && ((words[wordIndex] & (1L << bitIndex)) != 0);
     }
 
+    /*@ public normal_behavior
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures \result == \dl_moduloInt(maxElement(indices));
+      @  assignable \strictly_nothing;
+      @*/
     public int length() {
         if (wordsInUse == 0)
             return 0;
@@ -193,13 +432,35 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
             (BITS_PER_WORD - Long.numberOfLeadingZeros(words[wordsInUse - 1]));
     }
 
+    /*@ public normal_behavior
+      @  requires \invariant_for(set);
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures indices == intersect(\old(indices), set.indices);
+      @  ensures \old(wordsInUse) >= wordsInUse;
+      @  assignable words, wordsInUse;
+      @*/
     public void and(BitSet set) {
         if (this == set)
             return;
 
+        /*@ maintaining set.wordsInUse <= wordsInUse
+          @             && wordsInUse <= \old(wordsInUse);
+          @ maintaining (\forall int i;
+          @                  \old(wordsInUse) - 1 <= i && i <= wordsInUse;
+          @                  words[i] == 0);
+          @ decreasing wordsInUse;
+          @ assignable wordsInUse, words[\old(wordsInUse) - 1 .. set.wordsInUse];
+          @*/
         while (wordsInUse > set.wordsInUse)
             words[--wordsInUse] = 0;
 
+        /*@ maintaining 0 <= i && i <= wordsInUse;
+          @ maintaining (\forall int j;
+          @                  0 <= j && j < i;
+          @                  words[j] == (\old(words[j]) & set.words[j]));
+          @ decreasing wordsInUse - i;
+          @ assignable words[0 .. wordsInUse - 1];
+          @*/
         // Perform logical AND on words in common
         for (int i = 0; i < wordsInUse; i++)
             words[i] &= set.words[i];
@@ -208,6 +469,13 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         checkInvariants();
     }
 
+    /*@ public normal_behavior
+      @  requires \invariant_for(set);
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures indices == union(\old(indices), set.indices);
+      @  ensures \old(wordsInUse) >= wordsInUse;
+      @  assignable wordsInUse, words;
+      @*/
     public void or(BitSet set) {
         if (this == set)
             return;
@@ -219,6 +487,13 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
             wordsInUse = set.wordsInUse;
         }
 
+        /*@ maintaining 0 <= i && i <= wordsInCommon;
+          @ maintaining (\forall int j;
+          @                  0 <= j && j < i;
+          @                  words[j] == (\old(words[j]) | set.words[j]));
+          @ decreasing wordsInCommon - i;
+          @ assignable words[0 .. wordsInCommon - 1];
+          @*/
         // Perform logical OR on words in common
         for (int i = 0; i < wordsInCommon; i++)
             words[i] |= set.words[i];
@@ -233,6 +508,13 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         checkInvariants();
     }
 
+    /*@ public normal_behavior
+      @  requires \invariant_for(set);
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures indices == symmetricDifference(\old(indices), set.indices);
+      @  ensures \old(wordsInUse) >= wordsInUse;
+      @  assignable wordsInUse, words;
+      @*/
     public void xor(BitSet set) {
         int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
 
@@ -241,6 +523,13 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
             wordsInUse = set.wordsInUse;
         }
 
+        /*@ maintaining 0 <= i && i <= wordsInCommon;
+          @ maintaining (\forall int j;
+          @                  0 <= j && j < i;
+          @                  words[j] == (\old(words[j]) ^ set.words[j]));
+          @ decreasing wordsInCommon - i;
+          @ assignable words[0 .. wordsInCommon - 1];
+          @*/
         // Perform logical XOR on words in common
         for (int i = 0; i < wordsInCommon; i++)
             words[i] ^= set.words[i];
@@ -255,7 +544,21 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         checkInvariants();
     }
 
+    /*@ public normal_behavior
+      @  requires \invariant_for(set);
+      @  // Assuming `indices` is a ghost variable (set of natural numbers)
+      @  //ensures indices == set_difference(\old(indices), set.indices);
+      @  ensures \old(wordsInUse) >= wordsInUse;
+      @  assignable wordsInUse, words;
+      @*/
     public void andNot(BitSet set) {
+        /* @ maintaining 0 <= i && i <= Math.min(wordsInUse, set.wordsInUse);
+           @ maintaining (\forall int j;
+           @                  0 <= j && j < i;
+           @                  words[j] == (\old(words[j]) & ~set.words[j]));
+           @ decreasing Math.min(wordsInUse, set.wordsInUse) - i;
+           @ assignable words[0 .. Math.min(wordsInUse, set.wordsInUse) - 1];
+           @*/
         // Perform logical (a & !b) on words in common
         for (int i = Math.min(wordsInUse, set.wordsInUse) - 1; i >= 0; i--)
             words[i] &= ~set.words[i];
