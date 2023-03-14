@@ -52,8 +52,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         // [Own implementation used (OpenJDK uses "native" implementation)]
         // [Incomplete specification. Sufficient for BitSet]
         /*@ public normal_behavior
-          @  requires src != null;
-          @  requires dest != null;
           @  requires srcPos == 0;
           @  requires destPos == 0;
           @  requires 0 <= length && length <= dest.length
