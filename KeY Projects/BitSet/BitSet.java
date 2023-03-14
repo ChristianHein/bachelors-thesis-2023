@@ -131,10 +131,16 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private static final long WORD_MASK = 0xffffffffffffffffL;
 
+    //@ ghost \free iSet;
+
     /*@ public invariant 0 <= wordsInUse && wordsInUse <= words.length;
       @ public invariant wordsInUse != 0 ==> words[wordsInUse - 1] != 0;
       @ public invariant (\forall int i; wordsInUse <= i && i < words.length;
       @                       words[i] == 0);
+      @ public invariant (\forall int x; 0 <= x;
+      @                       this.get(x) == \dl_in(x, iSet));
+      @ public invariant (\forall int x; \dl_in(x, iSet);
+      @                       x >= 0);
       @*/
 
     private long[] words;
@@ -217,7 +223,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures (\forall int i; 0 <= i && i < words.length;
       @               words[i] == 0);
       @  ensures sizeIsSticky == false;
-      @  assignable words;
+      @  ensures iSet == \dl_iset_empty();
+      @  assignable words, iSet;
       @*/
     public BitSet() {
         initWords(BITS_PER_WORD);
@@ -230,11 +237,13 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures words.length == wordIndex(nbits - 1) + 1;
       @  ensures (\forall int i; 0 <= i && i < words.length;
       @               words[i] == 0);
-      @  assignable words;
+      @  ensures iSet == \dl_iset_empty();
+      @  assignable words, iSet;
       @*/
     /*@ helper @*/
     private void initWords(int nbits) {
         words = new long[wordIndex(nbits-1) + 1];
+        //@ set iSet = \dl_iset_empty();
     }
 
     /*@ public normal_behavior
@@ -308,12 +317,11 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires 0 <= bitIndex;
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures  (bitIndex ∈ \old(indices)) ==> !(bitIndex ∈ indices);
-      @  //ensures !(bitIndex ∈ \old(indices)) ==>  (bitIndex ∈ indices);
-      @  //ensures (\forall int i; 0 <= i && i != bitIndex;
-      @  //             (i ∈ indices) == (i ∈ \old(indices)));
-      @  assignable words, wordsInUse, sizeIsSticky;
+      @  ensures  \dl_in(bitIndex, \old(iSet)) ==> !\dl_in(bitIndex, iSet);
+      @  ensures !\dl_in(bitIndex, \old(iSet)) ==>  \dl_in(bitIndex, iSet);
+      @  ensures (\forall int x; 0 <= x && x != bitIndex;
+      @               \dl_in(x, \old(iSet)) == \dl_in(x, iSet));
+      @  assignable words, wordsInUse, sizeIsSticky, iSet;
       @
       @ also
       @
@@ -331,6 +339,10 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         expandTo(wordIndex);
 
         words[wordIndex] ^= (1L << bitIndex);
+        /*@ set iSet = \dl_in(bitIndex, iSet)
+                           ? \dl_iset_remove(bitIndex, iSet)
+                           : \dl_iset_insert(bitIndex, iSet);
+         */
 
         recalculateWordsInUse();
         checkInvariants();
@@ -338,11 +350,10 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires 0 <= bitIndex;
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures bitIndex ∈ indices;
-      @  //ensures (\forall int i; 0 <= i && i != bitIndex;
-      @  //             (i ∈ indices) == (i ∈ \old(indices)));
-      @  assignable words, wordsInUse, sizeIsSticky;
+      @  ensures \dl_in(bitIndex, iSet);
+      @  ensures (\forall int x; 0 <= x && x != bitIndex;
+      @               \dl_in(x, iSet) == \dl_in(x, \old(iSet)));
+      @  assignable words, wordsInUse, sizeIsSticky, iSet;
       @
       @ also
       @
@@ -360,17 +371,17 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         expandTo(wordIndex);
 
         words[wordIndex] |= (1L << bitIndex); // Restores invariants
+        //@ set iSet = \dl_iset_insert(bitIndex, iSet);
 
         checkInvariants();
     }
 
     /*@ public normal_behavior
       @  requires 0 <= bitIndex;
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures !(bitIndex ∈ indices);
-      @  //ensures (\forall int i; 0 <= i && i != bitIndex;
-      @  //             (i ∈ indices) == (i ∈ \old(indices)));
-      @  assignable words, wordsInUse;
+      @  ensures !\dl_in(bitIndex, iSet);
+      @  ensures (\forall int x; 0 <= x && x != bitIndex;
+      @               \dl_in(x, iSet) == \dl_in(x, \old(iSet)));
+      @  assignable words, wordsInUse, iSet;
       @
       @ also
       @
@@ -389,6 +400,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
             return;
 
         words[wordIndex] &= ~(1L << bitIndex);
+        //@ set iSet = \dl_iset_remove(bitIndex, iSet);
 
         recalculateWordsInUse();
         checkInvariants();
@@ -396,8 +408,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires 0 <= bitIndex;
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures \result == (bitIndex ∈ indices);
+      @  ensures \result == \dl_in(bitIndex, iSet);
       @  assignable \strictly_nothing;
       @
       @ also
@@ -420,8 +431,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     }
 
     /*@ public normal_behavior
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures \result == \dl_moduloInt(maxElement(indices));
+      @  ensures \result == \dl_moduloInt(\dl_iset_max(iSet));
       @  assignable \strictly_nothing;
       @*/
     public int length() {
@@ -434,10 +444,9 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures indices == intersect(\old(indices), set.indices);
+      @  ensures iSet == \dl_iset_intersect(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable words, wordsInUse;
+      @  assignable words, wordsInUse, iSet;
       @*/
     public void and(BitSet set) {
         if (this == set)
@@ -465,16 +474,17 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         for (int i = 0; i < wordsInUse; i++)
             words[i] &= set.words[i];
 
+        //@ set iSet = \dl_iset_intersect(iSet, set.iSet);
+
         recalculateWordsInUse();
         checkInvariants();
     }
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures indices == union(\old(indices), set.indices);
+      @  ensures iSet == \dl_iset_union(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable wordsInUse, words;
+      @  assignable wordsInUse, words, iSet;
       @*/
     public void or(BitSet set) {
         if (this == set)
@@ -498,6 +508,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         for (int i = 0; i < wordsInCommon; i++)
             words[i] |= set.words[i];
 
+        //@ set iSet = \dl_iset_union(iSet, set.iSet);
+
         // Copy any remaining words
         if (wordsInCommon < set.wordsInUse)
             System.arraycopy(set.words, wordsInCommon,
@@ -510,10 +522,9 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures indices == symmetricDifference(\old(indices), set.indices);
+      @  ensures iSet == \dl_iset_symmetricDifference(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable wordsInUse, words;
+      @  assignable wordsInUse, words, iSet;
       @*/
     public void xor(BitSet set) {
         int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
@@ -534,6 +545,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         for (int i = 0; i < wordsInCommon; i++)
             words[i] ^= set.words[i];
 
+        //@ set iSet = \dl_iset_symmetricDifference(iSet, set.iSet);
+
         // Copy any remaining words
         if (wordsInCommon < set.wordsInUse)
             System.arraycopy(set.words, wordsInCommon,
@@ -546,10 +559,9 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
-      @  // Assuming `indices` is a ghost variable (set of natural numbers)
-      @  //ensures indices == set_difference(\old(indices), set.indices);
+      @  ensures iSet == \dl_iset_difference(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable wordsInUse, words;
+      @  assignable wordsInUse, words, iSet;
       @*/
     public void andNot(BitSet set) {
         /* @ maintaining 0 <= i && i <= Math.min(wordsInUse, set.wordsInUse);
@@ -562,6 +574,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         // Perform logical (a & !b) on words in common
         for (int i = Math.min(wordsInUse, set.wordsInUse) - 1; i >= 0; i--)
             words[i] &= ~set.words[i];
+
+        //@ set iSet = \dl_iset_difference(iSet, set.iSet);
 
         recalculateWordsInUse();
         checkInvariants();
