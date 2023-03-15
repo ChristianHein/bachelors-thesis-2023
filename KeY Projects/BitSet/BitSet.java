@@ -110,16 +110,37 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     }
 
     private final static class Long {
+        /*@ public normal_behavior
+          @  ensures 0 <= \result && \result <= 64;
+          @  ensures (\forall int index; 64 > index && index >= 64 - \result;
+          @               \dl_bitAt(i, index) == 0);
+          @  ensures \result != 64 ==> \dl_bitAt(i, 64 - \result) == 1;
+          @  assignable \strictly_nothing;
+          @*/
         public static int numberOfLeadingZeros(long i) {
             int x = (int)(i >>> 32);
             return x == 0 ? 32 + Integer.numberOfLeadingZeros((int)i)
                     : Integer.numberOfLeadingZeros(x);
         }
+
+        /*@ public normal_behavior
+          @  ensures 0 <= \result && \result <= 64;
+          @  ensures (\forall int index; \result > index && index >= 0;
+          @               \dl_bitAt(i, index) == 0);
+          @  ensures \result != 64 ==> \dl_bitAt(i, \result) == 1;
+          @  assignable \strictly_nothing;
+          @*/
         public static int numberOfTrailingZeros(long i) {
             int x = (int)i;
             return x == 0 ? 32 + Integer.numberOfTrailingZeros((int)(i >>> 32))
                     : Integer.numberOfTrailingZeros(x);
         }
+
+        /*@ public normal_behavior
+          @  ensures \result == (\sum int index; 0 <= index && index < 64;
+          @                          \dl_bitAt(i, index));
+          @  assignable \strictly_nothing;
+          @*/
         public static int bitCount(long i) {
             i = i - ((i >>> 1) & 0x5555555555555555L);
             i = (i & 0x3333333333333333L) + ((i >>> 2) & 0x3333333333333333L);
