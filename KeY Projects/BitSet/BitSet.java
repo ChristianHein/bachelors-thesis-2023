@@ -255,7 +255,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @               words[i] == 0);
       @  ensures sizeIsSticky == false;
       @  ensures iSet == \dl_iset_empty();
-      @  assignable words, iSet;
+      @  assignable \nothing;
       @*/
     public BitSet() {
         initWords(BITS_PER_WORD);
