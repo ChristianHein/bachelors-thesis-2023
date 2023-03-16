@@ -45,9 +45,9 @@
 "
 }
 
-\javaSource "../../../../../../../../../../../../../home/christianhein/Universität/Module/Bachelorarbeit/WS2223/Git Repository/KeY Projects/BitSet";
+\javaSource "..";
 
-\include "../../../../../../../../../../../../../home/christianhein/Universität/Module/Bachelorarbeit/WS2223/Git%20Repository/KeY%20Projects/BitSet/taclets/intSet.key",  "../../../../../../../../../../../../../home/christianhein/Universität/Module/Bachelorarbeit/WS2223/Git%20Repository/KeY%20Projects/BitSet/taclets/binaryAxiomsExtension.key",  "../../../../../../../../../../../../../home/christianhein/Universität/Module/Bachelorarbeit/WS2223/Git%20Repository/KeY%20Projects/BitSet/taclets/bitwiseOperations.key";
+\include "../taclets/intSet.key",  "../taclets/binaryAxiomsExtension.key",  "../taclets/bitwiseOperations.key";
 
 \proofObligation "#Proof Obligation Settings
 #Tue Mar 14 21:23:39 CET 2023
