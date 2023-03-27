@@ -195,6 +195,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires words != null;
+      @  requires 0 <= wordsInUse && wordsInUse <= words.length;
       @  requires wordsInUse == 0 || words[wordsInUse - 1] != 0;
       @  requires wordsInUse >= 0 && wordsInUse <= words.length;
       @  requires wordsInUse == words.length || words[wordsInUse] == 0;
@@ -204,7 +205,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @
       @ public exceptional_behavior
       @  requires words != null;
-      @  requires !(wordsInUse == 0 || words[wordsInUse - 1] != 0)
+      @  requires !(0 <= wordsInUse && wordsInUse <= words.length)
+      @        || !(wordsInUse == 0 || words[wordsInUse - 1] != 0)
       @        || !(wordsInUse >= 0 && wordsInUse <= words.length)
       @        || !(wordsInUse == words.length || words[wordsInUse] == 0);
       @  signals_only AssertionError, ArrayIndexOutOfBoundsException;
