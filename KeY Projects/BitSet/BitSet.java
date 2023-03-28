@@ -164,14 +164,24 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     //@ ghost \free iSet;
 
+    /*@ public model \locset footprint;
+      @ public represents footprint = \set_union(this.*, this.words.*);
+      @ public accessible footprint: footprint;
+      @*/
+
     /*@ public invariant 0 <= wordsInUse && wordsInUse <= words.length;
       @ public invariant wordsInUse != 0 ==> words[wordsInUse - 1] != 0;
       @ public invariant (\forall int i; wordsInUse <= i && i < words.length;
       @                       words[i] == 0);
-      @ public invariant (\forall int x; 0 <= x;
-      @                       this.get(x) == \dl_in(x, iSet));
-      @ public invariant (\forall int x; \dl_in(x, iSet);
-      @                       x >= 0);
+      @ public invariant (\forall int wordIndex, bitIndex;
+      @                       0 <= wordIndex && wordIndex < wordsInUse
+      @                           && 0 <= bitIndex && bitIndex < BITS_PER_WORD;
+      @                       \dl_in((long)wordIndex * BITS_PER_WORD + bitIndex, iSet)
+      @                           <==> \dl_bitAt(words[wordIndex], bitIndex) == 1);
+      @ public invariant (\forall long x; \dl_in(x, iSet);
+      @                       0 <= x && x < (long)wordsInUse * BITS_PER_WORD);
+      @
+      @ public accessible \inv: footprint;
       @*/
 
     private long[] words;
@@ -354,7 +364,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures !\dl_in(bitIndex, \old(iSet)) ==>  \dl_in(bitIndex, iSet);
       @  ensures (\forall int x; 0 <= x && x != bitIndex;
       @               \dl_in(x, \old(iSet)) == \dl_in(x, iSet));
-      @  assignable words, wordsInUse, sizeIsSticky, iSet;
+      @  assignable footprint;
       @
       @ also
       @
@@ -386,7 +396,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures \dl_in(bitIndex, iSet);
       @  ensures (\forall int x; 0 <= x && x != bitIndex;
       @               \dl_in(x, iSet) == \dl_in(x, \old(iSet)));
-      @  assignable words, wordsInUse, sizeIsSticky, iSet;
+      @  assignable footprint;
       @
       @ also
       @
@@ -414,7 +424,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures !\dl_in(bitIndex, iSet);
       @  ensures (\forall int x; 0 <= x && x != bitIndex;
       @               \dl_in(x, iSet) == \dl_in(x, \old(iSet)));
-      @  assignable words, wordsInUse, iSet;
+      @  assignable footprint;
       @
       @ also
       @
@@ -481,7 +491,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_intersect(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable words, wordsInUse, iSet;
+      @  assignable footprint;
       @*/
     public void and(BitSet set) {
         if (this == set)
@@ -519,7 +529,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_union(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable wordsInUse, words, iSet;
+      @  assignable footprint;
       @*/
     public void or(BitSet set) {
         if (this == set)
@@ -559,7 +569,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_symmetricDifference(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable wordsInUse, words, iSet;
+      @  assignable footprint;
       @*/
     public void xor(BitSet set) {
         int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
@@ -596,7 +606,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_difference(\old(iSet), set.iSet);
       @  ensures \old(wordsInUse) >= wordsInUse;
-      @  assignable wordsInUse, words, iSet;
+      @  assignable footprint;
       @*/
     public void andNot(BitSet set) {
         /* @ maintaining 0 <= i && i <= Math.min(wordsInUse, set.wordsInUse);
