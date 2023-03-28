@@ -182,7 +182,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     // `writeObject`]
     private transient boolean sizeIsSticky = false;
 
-    /*@ public normal_behavior
+    /*@ private normal_behavior
       @  requires -1 <= bitIndex; // initWords(int) may call this method with -1
       @  ensures bitIndex == -1 ==> \result == -1;
       @  ensures bitIndex != -1 ==> \result == bitIndex / BITS_PER_WORD;
@@ -193,7 +193,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         return bitIndex >> ADDRESS_BITS_PER_WORD;
     }
 
-    /*@ public normal_behavior
+    /*@ private normal_behavior
       @  requires words != null;
       @  requires 0 <= wordsInUse && wordsInUse <= words.length;
       @  requires wordsInUse == 0 || words[wordsInUse - 1] != 0;
@@ -203,7 +203,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @
       @ also
       @
-      @ public exceptional_behavior
+      @ private exceptional_behavior
       @  requires words != null;
       @  requires !(0 <= wordsInUse && wordsInUse <= words.length)
       @        || !(wordsInUse == 0 || words[wordsInUse - 1] != 0)
@@ -222,7 +222,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         assert(wordsInUse == words.length || words[wordsInUse] == 0);
     }
 
-    /*@ public normal_behavior
+    /*@ private normal_behavior
       @  requires words != null;
       @  requires 0 <= wordsInUse && wordsInUse <= words.length;
       @  requires (\forall int i; wordsInUse <= i && i < words.length;
@@ -264,7 +264,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         sizeIsSticky = false;
     }
 
-    /*@ public normal_behavior
+    /*@ private normal_behavior
       @  requires 0 <= nbits;
       @  ensures words != null;
       @  ensures words.length == wordIndex(nbits - 1) + 1;
@@ -279,14 +279,14 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         //@ set iSet = \dl_iset_empty();
     }
 
-    /*@ public normal_behavior
+    /*@ private normal_behavior
       @  requires words != null;
       @  requires words.length >= wordsRequired;
       @  assignable \strictly_nothing;
       @
       @ also
       @
-      @ public normal_behavior
+      @ private normal_behavior
       @  requires words != null;
       @  requires words.length < wordsRequired;
       @  ensures words != null;
@@ -309,14 +309,14 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         }
     }
 
-    /*@ public normal_behavior
+    /*@ private normal_behavior
       @  requires words != null;
       @  requires wordIndex < wordsInUse;
       @  assignable \strictly_nothing;
       @
       @ also
       @
-      @ public normal_behavior
+      @ private normal_behavior
       @  requires words != null;
       @  requires wordsInUse <= wordIndex && wordIndex < words.length;
       @  ensures wordsInUse == wordIndex + 1;
@@ -324,7 +324,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @
       @ also
       @
-      @ public normal_behavior
+      @ private normal_behavior
       @  requires words != null;
       @  requires wordsInUse <= words.length;
       @  requires words.length <= wordIndex && wordIndex != Integer.MAX_VALUE;
