@@ -485,6 +485,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
+      @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_intersect(\old(iSet), set.iSet);
       @  assignable footprint;
       @*/
@@ -522,6 +523,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
+      @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_union(\old(iSet), set.iSet);
       @  assignable footprint;
       @*/
@@ -561,6 +563,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
+      @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_symmetricDifference(\old(iSet), set.iSet);
       @  assignable footprint;
       @*/
@@ -597,6 +600,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires \invariant_for(set);
+      @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_difference(\old(iSet), set.iSet);
       @  assignable footprint;
       @*/
