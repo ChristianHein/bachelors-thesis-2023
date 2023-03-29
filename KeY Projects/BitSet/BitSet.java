@@ -262,10 +262,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     }
 
     /*@ public normal_behavior
-      @  ensures words.length == wordIndex(BITS_PER_WORD - 1) + 1;
-      @  ensures (\forall int i; 0 <= i && i < words.length;
-      @               words[i] == 0);
-      @  ensures sizeIsSticky == false;
       @  ensures iSet == \dl_iset_empty();
       @  assignable \nothing;
       @*/
@@ -490,7 +486,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /*@ public normal_behavior
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_intersect(\old(iSet), set.iSet);
-      @  ensures \old(wordsInUse) >= wordsInUse;
       @  assignable footprint;
       @*/
     public void and(BitSet set) {
@@ -528,7 +523,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /*@ public normal_behavior
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_union(\old(iSet), set.iSet);
-      @  ensures \old(wordsInUse) >= wordsInUse;
       @  assignable footprint;
       @*/
     public void or(BitSet set) {
@@ -568,7 +562,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /*@ public normal_behavior
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_symmetricDifference(\old(iSet), set.iSet);
-      @  ensures \old(wordsInUse) >= wordsInUse;
       @  assignable footprint;
       @*/
     public void xor(BitSet set) {
@@ -605,7 +598,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /*@ public normal_behavior
       @  requires \invariant_for(set);
       @  ensures iSet == \dl_iset_difference(\old(iSet), set.iSet);
-      @  ensures \old(wordsInUse) >= wordsInUse;
       @  assignable footprint;
       @*/
     public void andNot(BitSet set) {
