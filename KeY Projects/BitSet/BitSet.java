@@ -450,6 +450,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires 0 <= bitIndex;
+      @  requires (\forall int i; 0 <= i && i < words.length;
+      @                Long.MIN_VALUE <= words[i] && words[i] <= Long.MAX_VALUE);
       @  ensures \result == \dl_in(bitIndex, iSet);
       @  assignable \strictly_nothing;
       @
@@ -469,7 +471,18 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
         int wordIndex = wordIndex(bitIndex);
         return (wordIndex < wordsInUse)
-            && ((words[wordIndex] & (1L << bitIndex)) != 0);
+            && (bitAt(words[wordIndex], bitIndex) != 0);
+    }
+
+    /*@ private normal_behavior
+      @  requires 0 <= bitIndex;
+      @  ensures \result == 0 || \result == 1;
+      @  ensures \result == \dl_bitAt(word, bitIndex % BITS_PER_WORD);
+      @  assignable \strictly_nothing;
+      @*/
+    /*@ helper @*/
+    private static int bitAt(long word, int bitIndex) {
+        return (word & (1L << bitIndex)) == 0 ? 0 : 1;
     }
 
     /*@ public normal_behavior
