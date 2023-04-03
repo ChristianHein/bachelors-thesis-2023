@@ -110,6 +110,9 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     }
 
     private final static class Long {
+        public static final long MIN_VALUE = 0x8000000000000000L;
+        public static final long MAX_VALUE = 0x7fffffffffffffffL;
+
         /*@ public normal_behavior
           @  ensures 0 <= \result && \result <= 64;
           @  ensures (\forall int index; 64 > index && index >= 64 - \result;
