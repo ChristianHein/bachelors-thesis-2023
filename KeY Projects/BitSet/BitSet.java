@@ -184,6 +184,11 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @ public invariant (\forall long x; \dl_in(x, iSet);
       @                       0 <= x && x < (long)wordsInUse * BITS_PER_WORD);
       @
+      @ // Necessary because KeY cannot prove this on its own. See issue #1271.
+      @ public invariant (\forall int i;
+      @                       0 <= i && i < words.length;
+      @                       Long.MIN_VALUE <= words[i] && words[i] <= Long.MAX_VALUE);
+      @
       @ public accessible \inv: footprint;
       @*/
 
@@ -450,8 +455,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  requires 0 <= bitIndex;
-      @  requires (\forall int i; 0 <= i && i < words.length;
-      @                Long.MIN_VALUE <= words[i] && words[i] <= Long.MAX_VALUE);
       @  ensures \result == \dl_in(bitIndex, iSet);
       @  assignable \strictly_nothing;
       @
