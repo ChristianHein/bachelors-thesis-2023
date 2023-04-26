@@ -474,7 +474,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
         int wordIndex = wordIndex(bitIndex);
         return (wordIndex < wordsInUse)
-            && (bitAt(words[wordIndex], bitIndex) != 0);
+            && (getBitAt(words[wordIndex], bitIndex) != 0);
     }
 
     /*@ private normal_behavior
@@ -484,7 +484,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  assignable \strictly_nothing;
       @*/
     /*@ helper @*/
-    private static int bitAt(long word, int bitIndex) {
+    private static int getBitAt(long word, int bitIndex) {
         return (word & (1L << bitIndex)) == 0 ? 0 : 1;
     }
 
