@@ -443,10 +443,24 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         int wordIndex = wordIndex(bitIndex);
         expandTo(wordIndex);
 
-        words[wordIndex] |= (1L << bitIndex);
+        words[wordIndex] = setBitAt(words[wordIndex], bitIndex % BITS_PER_WORD);
         //@ set iSet = \dl_iset_insert(bitIndex, iSet);
 
         checkInvariants();
+    }
+
+    /*@ private normal_behavior
+      @  requires 0 <= bitIndex && bitIndex < Long.SIZE;
+      @  ensures \dl_bitAt(word, bitIndex) == 1;
+      @  ensures (\forall int i;
+      @               0 <= i && i != bitIndex && i < Long.SIZE;
+      @               \dl_bitAt(\result, i) == \old(word, i));
+      @  ensures \dl_bitAt(\result, bitIndex) == 1;
+      @  assignable \strictly_nothing;
+      @*/
+    /*@ helper @*/
+    private static long setBitAt(long word, int bitIndex) {
+        return word | (1L << bitIndex);
     }
 
     /*@ public normal_behavior
