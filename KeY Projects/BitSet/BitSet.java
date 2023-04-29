@@ -117,7 +117,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
           @  ensures 0 <= \result && \result <= 64;
           @  ensures (\forall int index; 64 > index && index >= 64 - \result;
           @               \dl_bitAt(i, index) == 0);
-          @  ensures \result != 64 ==> \dl_bitAt(i, 64 - \result) == 1;
+          @  ensures \result != 64 ==> \dl_bitAt(i, 64 - (\result + 1)) == 1;
           @  assignable \strictly_nothing;
           @*/
         public static int numberOfLeadingZeros(long i) {
