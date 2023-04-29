@@ -146,6 +146,43 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         }
     }
 
+    public final static class Integer {
+        public static final int MIN_VALUE = 0x80000000;
+        public static final int MAX_VALUE = 0x7fffffff;
+        public static final int SIZE = 32;
+
+        /*@ public normal_behavior
+          @  ensures 0 <= \result && \result <= Integer.SIZE;
+          @  ensures (\forall int index;
+          @               Integer.SIZE > index && index >= (Integer.SIZE - \result);
+          @               \dl_bitAt(i, index) == 0);
+          @  ensures \result != Integer.SIZE
+          @              ==> \dl_bitAt(i, Integer.SIZE - (\result + 1)) == 1;
+          @  assignable \strictly_nothing;
+          @*/
+        public static int numberOfLeadingZeros(int i) {
+            if (i <= 0)
+                return i == 0 ? 32 : 0;
+            int n = 31;
+            if (i >= 1 << 16) { n -= 16; i >>>= 16; }
+            if (i >= 1 <<  8) { n -=  8; i >>>=  8; }
+            if (i >= 1 <<  4) { n -=  4; i >>>=  4; }
+            if (i >= 1 <<  2) { n -=  2; i >>>=  2; }
+            return n - (i >>> 1);
+        }
+
+        public static int numberOfTrailingZeros(int i) {
+            i = ~i & (i - 1);
+            if (i <= 0) return i & 32;
+            int n = 1;
+            if (i > 1 << 16) { n += 16; i >>>= 16; }
+            if (i > 1 <<  8) { n +=  8; i >>>=  8; }
+            if (i > 1 <<  4) { n +=  4; i >>>=  4; }
+            if (i > 1 <<  2) { n +=  2; i >>>=  2; }
+            return n + (i >>> 1);
+        }
+    }
+
     /* **************************** */
     /* Start of "Must-have" section */
     /* **************************** */
