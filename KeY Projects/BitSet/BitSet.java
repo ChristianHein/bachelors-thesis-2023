@@ -112,12 +112,15 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     private final static class Long {
         public static final long MIN_VALUE = 0x8000000000000000L;
         public static final long MAX_VALUE = 0x7fffffffffffffffL;
+        public static final int SIZE = 64;
 
         /*@ public normal_behavior
-          @  ensures 0 <= \result && \result <= 64;
-          @  ensures (\forall int index; 64 > index && index >= 64 - \result;
+          @  ensures 0 <= \result && \result <= Long.SIZE;
+          @  ensures (\forall int index;
+          @               Long.SIZE > index && index >= (Long.SIZE - \result);
           @               \dl_bitAt(i, index) == 0);
-          @  ensures \result != 64 ==> \dl_bitAt(i, 64 - (\result + 1)) == 1;
+          @  ensures \result != Long.SIZE
+          @              ==> \dl_bitAt(i, Long.SIZE - (\result + 1)) == 1;
           @  assignable \strictly_nothing;
           @*/
         public static int numberOfLeadingZeros(long i) {
