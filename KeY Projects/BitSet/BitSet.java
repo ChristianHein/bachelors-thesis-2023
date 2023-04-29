@@ -1007,7 +1007,20 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         return words.length * BITS_PER_WORD;
     }
 
-    public boolean equals(Object obj) {
+    /*@ public normal_behavior
+      @  requires !(obj instanceof BitSet);
+      @  ensures \result == false;
+      @  assignable \strictly_nothing;
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @  requires obj instanceof BitSet;
+      @  requires \invariant_for((BitSet)obj);
+      @  ensures \result == (this.iSet == ((BitSet)obj).iSet);
+      @  assignable \strictly_nothing;
+      @*/
+    public boolean equals(/*@ nullable @*/ Object obj) {
         if (!(obj instanceof BitSet))
             return false;
         if (this == obj)
@@ -1021,6 +1034,12 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
         if (wordsInUse != set.wordsInUse)
             return false;
 
+        /*@ maintaining 0 <= i && i <= wordsInUse;
+          @ maintaining (\forall int j; 0 <= j && j < i;
+          @                  words[j] == set.words[j]);
+          @ decreasing wordsInUse - i;
+          @ assignable \strictly_nothing;
+          @*/
         for (int i = 0; i < wordsInUse; i++)
             if (words[i] != set.words[i])
                 return false;
