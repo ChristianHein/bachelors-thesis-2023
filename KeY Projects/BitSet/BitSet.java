@@ -298,6 +298,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ public normal_behavior
       @  ensures iSet == \dl_iset_empty();
+      @  ensures \fresh(footprint);
       @  assignable \nothing;
       @*/
     public BitSet() {
@@ -312,6 +313,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures (\forall int i; 0 <= i && i < words.length;
       @               words[i] == 0);
       @  ensures iSet == \dl_iset_empty();
+      @  ensures \fresh(words);
       @  assignable words, iSet;
       @*/
     /*@ helper @*/
@@ -394,6 +396,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures !\dl_in(bitIndex, \old(iSet)) ==>  \dl_in(bitIndex, iSet);
       @  ensures (\forall int x; 0 <= x && x != bitIndex;
       @               \dl_in(x, \old(iSet)) == \dl_in(x, iSet));
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @
       @ also
@@ -426,6 +429,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures \dl_in(bitIndex, iSet);
       @  ensures (\forall int x; 0 <= x && x != bitIndex;
       @               \dl_in(x, iSet) == \dl_in(x, \old(iSet)));
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @
       @ also
@@ -468,6 +472,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures !\dl_in(bitIndex, iSet);
       @  ensures (\forall int x; 0 <= x && x != bitIndex;
       @               \dl_in(x, iSet) == \dl_in(x, \old(iSet)));
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @
       @ also
@@ -546,6 +551,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_intersect(\old(iSet), set.iSet);
+      @  ensures \invariant_for(set);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void and(BitSet set) {
@@ -583,6 +590,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_union(\old(iSet), set.iSet);
+      @  ensures \invariant_for(set);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void or(BitSet set) {
@@ -620,6 +629,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_symmetricDifference(\old(iSet), set.iSet);
+      @  ensures \invariant_for(set);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void xor(BitSet set) {
@@ -655,6 +666,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires \invariant_for(set);
       @  requires \disjoint(footprint, set.footprint);
       @  ensures iSet == \dl_iset_difference(\old(iSet), set.iSet);
+      @  ensures \invariant_for(set);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void andNot(BitSet set) {
