@@ -534,9 +534,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     }
 
     /*@ public normal_behavior
-      @  ensures iSet == \dl_iset_empty() ==> \result == 0;
-      @  ensures iSet != \dl_iset_empty()
-      @      ==> \result == \dl_moduloInt(\dl_iset_max(iSet));
+      @  ensures \result == (iSet == \dl_iset_empty()
+      @                      ? 0 : \dl_moduloInt(\dl_iset_max(iSet) + 1));
       @  assignable \strictly_nothing;
       @*/
     public int length() {
