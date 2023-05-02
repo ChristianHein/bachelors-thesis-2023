@@ -22,6 +22,9 @@ import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 */
 
+// [Added import so that KeY's contract for Arrays::copyOf is loaded]
+import java.util.Arrays;
+
 public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /* ****************************************** */
     /* Internally overriden external dependencies */
@@ -74,38 +77,6 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
             for (int i = 0; i < length; i++) {
                 dest[i] = src[i];
             }
-        }
-    }
-
-    private final static class Arrays {
-        // [Incomplete specification. Sufficient for BitSet]
-        // [Note: Use `Query treatment: On/Restricted`.]
-        /*@ public normal_behavior
-          @  requires original != null;
-          @  requires 0 <= newLength;
-          @  ensures \result.length == newLength;
-          @  ensures (\forall int i;
-          @               0 <= i && i < Math.min(original.length, newLength);
-          @               \result[i] == original[i]);
-          @  ensures (\forall int i;
-          @               Math.min(original.length, newLength) <= i && i < \result.length;
-          @               \result[i] == 0);
-          @  assignable \nothing;
-          @
-          @ also
-          @
-          @ public exceptional_behavior
-          @  requires original == null || newLength < 0;
-          @  signals (NegativeArraySizeException) newLength < 0;
-          @  signals (NullPointerException) original == null && 0 <= newLength;
-          @  signals_only NegativeArraySizeException, NullPointerException;
-          @  assignable \nothing;
-          @*/
-        public static long[] copyOf(/*@ nullable @*/ long[] original, int newLength) {
-            long[] copy = new long[newLength];
-            System.arraycopy(original, 0, copy, 0,
-                             Math.min(original.length, newLength));
-            return copy;
         }
     }
 
