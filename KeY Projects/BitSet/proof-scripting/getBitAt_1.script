@@ -1,0 +1,21 @@
+# This script was used on a part of the BitSet::getBitAt() proof in the case
+# that bitIndex % 64 = 63, after expanding binaryAnd() with the
+# binaryAndLongDef_expanded taclet.
+#
+# It evaluates one summand. Every summand in this context evaluates to zero,
+# which is how we simplify the sum to only the subtrahend.
+
+# bitAt(literal, literal) expansion
+rule bitAtDef occ=0;
+rule leq_literals occ=0;
+rule ifthenelse_true occ=0;
+rule pow_literals occ=1;
+rule div_literals occ=0;
+rule mod_axiom occ=0;
+rule div_literals occ=0;
+rule mul_literals occ=0;
+rule mul_literals occ=0;
+rule add_literals occ=0;
+rule times_zero_1 occ=0;
+rule add_zero_left occ=0;
+
