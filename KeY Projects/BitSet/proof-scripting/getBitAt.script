@@ -1,0 +1,244 @@
+# This script was used on a part of the BitSet::getBitAt() proof in the context
+# of this sequent:
+#
+#     mod_0 ≤ 62,
+#     inLong(word),
+#     inLong(pow(2, mod_0)),
+#     mod_0 ≥ 0
+#    ⟹
+#       \if (binaryAnd(word, pow(2, mod_0)) = 0)  \then (0)  \else (1)
+#     = word / pow(2, mod_0) % 2
+#
+# After a cut over all possible values of mul_0 (0 to 62), this script is
+# manually run on every branch.
+
+
+# This block doesn't work for mul_0 = 0 to 9. Need to apply rules manually.
+rule applyEq occ=12;
+rule applyEq occ=16;
+rule applyEq occ=36;
+rule applyEq occ=51;
+rule applyEq occ=71;
+
+# Get rid of terms that interfere with the proof script
+rule hide_left occ=0;
+rule hide_left occ=1;
+rule hide_left occ=3;
+rule binaryAndLongDef_expanded occ=0;
+rule hide_left occ=1;
+rule hide_left occ=1;
+
+instantiate var=i with=0;
+instantiate var=i with=1;
+instantiate var=i with=2;
+instantiate var=i with=3;
+instantiate var=i with=4;
+instantiate var=i with=5;
+instantiate var=i with=6;
+instantiate var=i with=7;
+instantiate var=i with=8;
+instantiate var=i with=9;
+instantiate var=i with=10;
+instantiate var=i with=11;
+instantiate var=i with=12;
+instantiate var=i with=13;
+instantiate var=i with=14;
+instantiate var=i with=15;
+instantiate var=i with=16;
+instantiate var=i with=17;
+instantiate var=i with=18;
+instantiate var=i with=19;
+instantiate var=i with=20;
+instantiate var=i with=21;
+instantiate var=i with=22;
+instantiate var=i with=23;
+instantiate var=i with=24;
+instantiate var=i with=25;
+instantiate var=i with=26;
+instantiate var=i with=27;
+instantiate var=i with=28;
+instantiate var=i with=29;
+instantiate var=i with=30;
+instantiate var=i with=31;
+instantiate var=i with=32;
+instantiate var=i with=33;
+instantiate var=i with=34;
+instantiate var=i with=35;
+instantiate var=i with=36;
+instantiate var=i with=37;
+instantiate var=i with=38;
+instantiate var=i with=39;
+instantiate var=i with=40;
+instantiate var=i with=41;
+instantiate var=i with=42;
+instantiate var=i with=43;
+instantiate var=i with=44;
+instantiate var=i with=45;
+instantiate var=i with=46;
+instantiate var=i with=47;
+instantiate var=i with=48;
+instantiate var=i with=49;
+instantiate var=i with=50;
+instantiate var=i with=51;
+instantiate var=i with=52;
+instantiate var=i with=53;
+instantiate var=i with=54;
+instantiate var=i with=55;
+instantiate var=i with=56;
+instantiate var=i with=57;
+instantiate var=i with=58;
+instantiate var=i with=59;
+instantiate var=i with=60;
+instantiate var=i with=61;
+instantiate var=i with=62;
+
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+rule qeq_literals occ=0;
+rule concrete_impl_1 occ=0;
+#tryclose;
+
+# Notes for trying to find a script for applyEq when mod_0 <= 9
+# rule applyEq occ=1465;
+# // 94 inbetween (all checked)
+# rule applyEq occ=1559;
+# // 94 inbetween
+# rule applyEq occ=1653;
+# // 102 inbetween
+# rule applyEq occ=1755;
+# 
+# rule applyEq occ=1672;
+# // 25 inbetween
+# rule applyEq occ=1697;
+# 
+# rule applyEq occ=1957;
+# // 26 inbetween
+# rule applyEq occ=1983;
+# // 26 inbetween
+# rule applyEq occ=2009;
+# // 28 inbetween
+# rule applyEq occ=2037;
+# rule applyEq occ=2065;
+
