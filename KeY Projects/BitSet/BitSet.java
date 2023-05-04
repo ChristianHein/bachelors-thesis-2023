@@ -496,7 +496,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /*@ private normal_behavior
       @  requires 0 <= bitIndex;
       @  ensures \result == 0 || \result == 1;
-      @  ensures \result == \dl_bitAt(word, bitIndex % BITS_PER_WORD);
+      @  ensures \result == \dl_bitAt(word, bitIndex % Long.SIZE);
       @  assignable \strictly_nothing;
       @*/
     /*@ helper @*/
