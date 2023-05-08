@@ -428,11 +428,10 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ private normal_behavior
       @  requires 0 <= bitIndex && bitIndex < Long.SIZE;
-      @  ensures \dl_bitAt(word, bitIndex) == 1;
       @  ensures \dl_bitAt(\result, bitIndex) == 1;
       @  ensures (\forall int i;
       @               0 <= i && i != bitIndex && i < Long.SIZE;
-      @               \dl_bitAt(\result, i) == \old(word, i));
+      @               \dl_bitAt(\result, i) == \dl_bitAt(word, i));
       @  assignable \strictly_nothing;
       @*/
     /*@ helper @*/
