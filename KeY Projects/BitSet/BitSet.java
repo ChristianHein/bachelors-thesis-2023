@@ -304,7 +304,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  requires words != null;
       @  requires words.length < wordsRequired;
       @  ensures words != null;
-      @  ensures \old(words.length) < words.length;
+      @  ensures words.length > \old(words.length);
       @  ensures words.length >= wordsRequired;
       @  ensures (\forall int i; 0 <= i && i < \old(words.length);
       @               words[i] == \old(words[i]));
@@ -324,7 +324,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     /*@ private normal_behavior
       @  requires words != null;
-      @  requires wordIndex < wordsInUse;
+      @  requires wordsInUse > wordIndex;
       @  assignable \strictly_nothing;
       @
       @ also
@@ -348,8 +348,8 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @               words[i] == \old(words[i]));
       @  ensures (\forall int i; \old(words.length) <= i && i < words.length;
       @               words[i] == 0);
-      @  ensures sizeIsSticky == false;
       @  ensures wordsInUse == wordIndex + 1;
+      @  ensures sizeIsSticky == false;
       @  assignable words, wordsInUse, sizeIsSticky;
       @*/
     /*@ helper @*/
@@ -427,10 +427,10 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
     /*@ private normal_behavior
       @  requires 0 <= bitIndex && bitIndex < Long.SIZE;
       @  ensures \dl_bitAt(word, bitIndex) == 1;
+      @  ensures \dl_bitAt(\result, bitIndex) == 1;
       @  ensures (\forall int i;
       @               0 <= i && i != bitIndex && i < Long.SIZE;
       @               \dl_bitAt(\result, i) == \old(word, i));
-      @  ensures \dl_bitAt(\result, bitIndex) == 1;
       @  assignable \strictly_nothing;
       @*/
     /*@ helper @*/
