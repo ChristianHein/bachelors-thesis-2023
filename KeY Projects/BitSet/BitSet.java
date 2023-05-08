@@ -311,6 +311,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @  ensures (\forall int i; \old(words.length) <= i && i < words.length;
       @               words[i] == 0);
       @  ensures sizeIsSticky == false;
+      @  ensures \fresh(words);
       @  assignable words, sizeIsSticky;
       @*/
     /*@ helper @*/
@@ -350,6 +351,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
       @               words[i] == 0);
       @  ensures wordsInUse == wordIndex + 1;
       @  ensures sizeIsSticky == false;
+      @  ensures \fresh(words);
       @  assignable words, wordsInUse, sizeIsSticky;
       @*/
     /*@ helper @*/
