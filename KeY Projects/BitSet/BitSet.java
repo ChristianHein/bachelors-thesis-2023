@@ -176,8 +176,7 @@ public class BitSet /* implements Cloneable, java.io.Serializable */ {
 
     private transient int wordsInUse = 0;
 
-    // [Never read, except in commented out methods `clone`, `readObject`, and
-    // `writeObject`]
+    // [Never read]
     private transient boolean sizeIsSticky = false;
 
     /*@ private normal_behavior
