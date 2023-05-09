@@ -1,5 +1,5 @@
 (set-option :produce-models true)
-(set-logic ALL)
+(set-logic ALL) ; KeY always uses ALL
 
 ;====
 ; SMT-LIB function which mimic Java's bitwise operators AND, OR, and XOR.
