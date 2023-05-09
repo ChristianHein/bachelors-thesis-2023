@@ -12,16 +12,6 @@
 package java.util;
 */
 
-/*
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.LongBuffer;
-import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
-*/
-
 // [Added import so that KeY's contract for Arrays::copyOf is loaded]
 import java.util.Arrays;
 
